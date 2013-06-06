@@ -33,7 +33,7 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
             return v
         }
 
-        if (columnDataType == 'T' && v.length() > 2) {
+        if ((columnDataType == 'T' || columnDataType == 'N') && v.length() > 2) {
             if (operator.equalsIgnoreCase('like')) {
                 if (v[0] != "'" && !v[0] != '(') {
                     if (v[-1] != '%') {
