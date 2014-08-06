@@ -42,7 +42,7 @@ import static org.hibernate.sql.JoinFragment.INNER_JOIN
  */
 class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
 
-    final String name = 'rnaseq_cog'
+    final String name = 'rnaseqcog'
 
     final String description = "Messenger RNA data (Sequencing)"
 
