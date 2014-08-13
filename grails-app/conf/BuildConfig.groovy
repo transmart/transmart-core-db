@@ -27,14 +27,7 @@ grails.project.dependency.resolution = {
     inherits('global') {}
 
     repositories {
-        //  grailsPlugins()
-        // grailsHome()
-        grailsCentral()
-
         mavenLocal()
-        mavenCentral()
-
-        mavenRepo 'https://repo.transmartfoundation.org/content/repositories/public/'
         mavenRepo 'https://repo.thehyve.nl/content/repositories/public/'
     }
 
