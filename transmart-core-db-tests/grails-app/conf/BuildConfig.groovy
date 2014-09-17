@@ -108,5 +108,9 @@ grails.project.dependency.resolution = {
                 export = false
             }
         }
+        
+        // support for static code analysis
+        compile ":codenarc:0.21"
+    
     }
 }

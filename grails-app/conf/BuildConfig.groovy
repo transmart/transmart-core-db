@@ -27,7 +27,7 @@ grails.project.dependency.resolution = {
     inherits('global') {}
 
     repositories {
-        //  grailsPlugins()
+        grailsPlugins()
         // grailsHome()
         grailsCentral()
 
@@ -59,5 +59,8 @@ grails.project.dependency.resolution = {
         }
 
         runtime ':hibernate:3.6.10.4'
+
+        // support for static code analysis
+        compile ":codenarc:0.21"
     }
 }
