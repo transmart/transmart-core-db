@@ -64,3 +64,11 @@ grails.project.dependency.resolution = {
         compile ":codenarc:0.21"
     }
 }
+
+codenarc.reports = {
+    TransmartAppReport('html') {
+        outputFile = 'CodeNarc-transmart-core-db-Report.html'
+        title = 'transmart-core-db Report'
+    }
+}
+
