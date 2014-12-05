@@ -20,8 +20,12 @@
 package org.transmartproject.db.querytool
 
 import groovy.xml.MarkupBuilder
+import org.joda.time.format.ISODateTimeFormat
 import org.transmartproject.core.exceptions.InvalidRequestException
 import org.transmartproject.core.querytool.*
+
+import static org.transmartproject.core.querytool.DateSpecification.DateColumn
+import static org.transmartproject.core.querytool.DateSpecification.DateColumn.*
 
 /**
  * Handles conversions of {@link org.transmartproject.core.querytool
@@ -59,11 +63,41 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
 
             new Item(data)
         }
+
+        def convertDateSpecification = { ds ->
+            if (ds.size() == 0) {
+                return
+            }
+
+            DateColumn dateColumn = START_DATE
+            if (ds.'@time') {
+                try {
+                    dateColumn = DateColumn.valueOf(ds.'@time'.text())
+                } catch (IllegalArgumentException iae) {
+                    throw new InvalidRequestException(
+                            'Invalid date column specification', iae)
+                }
+            }
+            Calendar date
+            try {
+                date = ISODateTimeFormat.dateTime().parseDateTime(ds.text())
+            } catch (IllegalArgumentException iae) {
+                throw new InvalidRequestException('Invalid date', iae)
+            }
+
+
+            new DateSpecification(
+                    inclusive: ds.'@inclusive' != 'NO',
+                    dateColumn: dateColumn,
+                    date: date)
+        }
+
         def panels = xml.panel.collect { panel ->
             new Panel(
                     invert: panel.invert == '1',
-                    items: panel.item.collect(convertItem)
-            )
+                    items: panel.item.collect(convertItem),
+                    dateFrom: convertDateSpecification(panel.panel_date_from),
+                    dateTo: convertDateSpecification(panel.panel_date_to))
         }
 
         if (xml.query_name.size()) {
@@ -88,13 +122,18 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
          * It's possible the schema is only used to generate Java classes
          * using JAXB and that there's never any validation against the schema
          */
-        xml.'qd:query_definition'('xmlns:qd': "http://www.i2b2" +
-                ".org/xsd/cell/crc/psm/querydefinition/1.1/") {
+        xml.query_definition {
             query_name definition.name
 
             definition.panels.each { Panel panelArg ->
                 panel {
                     invert panelArg.invert ? '1' : '0'
+
+                    writeDateSpecification panelArg.dateFrom,
+                            'panel_date_from', delegate
+                    writeDateSpecification panelArg.dateTo,
+                            'panel_date_to', delegate
+
                     panelArg.items.each { Item itemArg ->
                         item {
                             item_key itemArg.conceptKey
@@ -113,5 +152,15 @@ class QueryDefinitionXmlService implements QueryDefinitionXmlConverter {
         }
 
         writer.toString()
+    }
+
+    private void writeDateSpecification(DateSpecification ds, String element, delegate) {
+         if (!ds) {
+             return
+         }
+
+        delegate."$element" time: ds.dateColumn.name,
+                inclusive: ds.inclusive.toString(),
+                ISODateTimeFormat.dateTime().print(ds.date)
     }
 }
