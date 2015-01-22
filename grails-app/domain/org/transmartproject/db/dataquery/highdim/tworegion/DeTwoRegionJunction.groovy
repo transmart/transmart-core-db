@@ -9,16 +9,16 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 @EqualsAndHashCode()
 class DeTwoRegionJunction implements Serializable {
 
-    long upEnd;
-    String upChromosome;
-    long upPos;
-    char upStrand;
-    long downEnd;
-    String downChromosome;
-    long downPos;
-    char downStrand;
-    boolean isInFrame;
-    long id;
+    long upEnd
+    String upChromosome
+    long upPos
+    char upStrand
+    long downEnd
+    String downChromosome
+    long downPos
+    char downStrand
+    boolean isInFrame
+    long id
     DeSubjectSampleMapping assay
 
     static hasMany = [ eventjunctions: DeTwoRegionJunctionEvent]

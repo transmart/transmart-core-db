@@ -10,9 +10,9 @@ import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 @EqualsAndHashCode()
 class DeTwoRegionEvent implements Serializable {
 
-    String cgaType;
-    String soapClass;
-    long id;
+    String cgaType
+    String soapClass
+    long id
 
     static hasMany = [ genes: DeTwoRegionEventGene ]
 

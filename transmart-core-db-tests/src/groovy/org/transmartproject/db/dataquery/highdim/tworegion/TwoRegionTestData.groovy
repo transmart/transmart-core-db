@@ -57,8 +57,8 @@ class TwoRegionTestData {
 
         events = []
         junctions = []
-        junctionEvents = [];
-        genes = [];
+        junctionEvents = []
+        genes = []
         //1st event: deletion chr1 2-10 - chr3 12-18 + chr10 2-10 - chr13 12-18 + chrX 2-10 - chr3 12-18
         //2nd event: deletion chrX 2-10 - chr3 12-18
         //junction without event chrY 2-10 - chr3 12-18
@@ -101,7 +101,7 @@ class TwoRegionTestData {
         junctionEvent.junction = junction
         junctionEvent.pairsSpan = 10
         junctionEvents.add(junctionEvent)
-        def event1 = event;
+        def event1 = event
         events.add(event)
 
         def gene = new DeTwoRegionEventGene(
@@ -112,7 +112,7 @@ class TwoRegionTestData {
         event = new DeTwoRegionEvent()
         event.soapClass = "translocation"
         event.genes = [gene]
-        gene.event = event;
+        gene.event = event
         genes.add(gene)
 
         def junction2 =  new DeTwoRegionJunction()

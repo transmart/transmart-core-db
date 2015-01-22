@@ -8,10 +8,10 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode()
 class DeTwoRegionEventGene  implements Serializable {
 
-    String geneId;
-    String effect;
-    long id;
-    DeTwoRegionEvent event;
+    String geneId
+    String effect
+    long id
+    DeTwoRegionEvent event
 
     static constraints = {
         geneId(nullable: true)

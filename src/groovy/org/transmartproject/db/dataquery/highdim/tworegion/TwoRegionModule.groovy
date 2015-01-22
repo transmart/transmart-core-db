@@ -122,7 +122,7 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                         j.eventjunctions[i].event = events.find({
                             j.eventjunctions[i].eventId == it.id
                         })
-                        j.eventjunctions[i].junction = j;
+                        j.eventjunctions[i].junction = j
                         j.eventjunctions[i].event.genes = genes.findAll({
                             it.eventId == j.eventjunctions[i].event.id
                         }).collect()

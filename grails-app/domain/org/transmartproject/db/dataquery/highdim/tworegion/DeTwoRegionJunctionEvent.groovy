@@ -8,16 +8,16 @@ import groovy.transform.EqualsAndHashCode
 @EqualsAndHashCode()
 class DeTwoRegionJunctionEvent implements Serializable {
 
-    int id;
-    int readsSpan;
-    int readsJunction;
-    int pairsSpan;
-    int pairsJunction;
-    int pairsEnd;
-    int pairsCounter;
-    double baseFreq;
-    DeTwoRegionEvent event;
-    DeTwoRegionJunction junction;
+    int id
+    int readsSpan
+    int readsJunction
+    int pairsSpan
+    int pairsJunction
+    int pairsEnd
+    int pairsCounter
+    double baseFreq
+    DeTwoRegionEvent event
+    DeTwoRegionJunction junction
 
     static constraints = {
         readsSpan(nullable: true)

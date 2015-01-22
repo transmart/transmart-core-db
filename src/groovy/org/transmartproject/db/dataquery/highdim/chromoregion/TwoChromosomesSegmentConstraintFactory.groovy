@@ -27,6 +27,6 @@ class TwoChromosomesSegmentConstraintFactory extends ChromosomeSegmentConstraint
         chr2.regionStartColumn = segmentTwoStartColumn
         chr2.regionEndColumn = segmentTwoEndColumn
 
-        return new DisjunctionDataConstraint(constraints:[chr, chr2]);
+        return new DisjunctionDataConstraint(constraints:[chr, chr2])
     }
 }

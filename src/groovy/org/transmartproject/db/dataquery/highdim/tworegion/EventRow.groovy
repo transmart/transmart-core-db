@@ -9,12 +9,12 @@ import org.transmartproject.core.dataquery.highdim.tworegion.GenesInEventValues
  * Created by j.hudecek on 4-12-2014.
  */
 class EventRow extends AbstractDataRow implements EventValues {
-    long id;
-    String cgaType;
-    String soapClass;
+    long id
+    String cgaType
+    String soapClass
 
-    JunctionInEventValues[] junctions;
-    GenesInEventValues[] genes;
+    JunctionInEventValues[] junctions
+    GenesInEventValues[] genes
 
     @Override
     String getLabel() {
@@ -23,8 +23,8 @@ class EventRow extends AbstractDataRow implements EventValues {
 
     public EventRow() {}
     public EventRow(DeTwoRegionEvent e) {
-        id = e.id;
-        soapClass = e.soapClass;
-        cgaType = e.cgaType;
+        id = e.id
+        soapClass = e.soapClass
+        cgaType = e.cgaType
     }
 }
