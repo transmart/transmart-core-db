@@ -39,6 +39,7 @@ import org.transmartproject.db.dataquery.highdim.rbm.RbmTestData
 import org.transmartproject.db.dataquery.highdim.rnaseq.RnaSeqTestData
 import org.transmartproject.db.dataquery.highdim.rnaseqcog.RnaSeqCogTestData
 import org.transmartproject.db.dataquery.highdim.vcf.VcfTestData
+import org.transmartproject.db.dataquery.highdim.tworegion.TwoRegionTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -98,6 +99,11 @@ class HighDimensionAllDataTests {
             [reference:Boolean, variant:String, variantType:String],
             [chromosome:String, position:Long, rsId: String, referenceAllele:String],
             VcfTestData
+        ], [
+            'two_region',
+            [reference:Boolean, variant:String, variantType:String],
+            [chromosome:String, position:Long, rsId: String, referenceAllele:String],
+            TwoRegionTestData
         ], [
             'acgh',
             [chipCopyNumberValue:Double, segmentCopyNumberValue:Double, flag:Short,
