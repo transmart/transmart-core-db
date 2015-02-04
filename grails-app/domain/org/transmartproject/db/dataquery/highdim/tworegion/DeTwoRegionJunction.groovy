@@ -31,8 +31,6 @@ class DeTwoRegionJunction implements Serializable, Junction {
         junctionEvents(nullable: true)
         upChromosome(maxSize: 50)
         downChromosome(maxSize: 50)
-        upStrand(maxSize: 1)
-        downStrand(maxSize: 1)
         upStrand(nullable: true)
         downStrand(nullable: true)
         isInFrame(nullable: true)
@@ -46,11 +44,11 @@ class DeTwoRegionJunction implements Serializable, Junction {
         upEnd column: 'up_end'
         upPos column: 'up_pos'
         upChromosome column: 'up_chr'
-        upStrand column: 'up_strand'
+        upStrand column: 'up_strand', sqlType: "char", length: 1
         downEnd column: 'down_end'
         downPos column: 'down_pos'
         downChromosome column: 'down_chr'
-        downStrand column: 'down_strand'
+        downStrand column: 'down_strand', sqlType: "char", length: 1
         isInFrame column: 'is_in_frame'
 
         /* references */
