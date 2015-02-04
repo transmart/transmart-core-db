@@ -104,22 +104,20 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
                 inSameGroup: {a, b -> a.junction.id == b.junction.id},
                 allowMissingColumns: false,
                 finalizeGroup: {List list ->
-                    for (def o in list) {
-                        Set junctionEvents = list.findAll({
-                            it.junctionEvents[0] != null && it.junctionEvents[0].junction.id == o.junction[0].id
-                        }).collect({it.junctionEvents[0]}).toSet()
-                        o.junction[0].junctionEvents = junctionEvents
-                        for (DeTwoRegionJunctionEvent je in junctionEvents) {
-                            je.event = list.find({
-                                it.event[0].id == je.event.id
-                            }).event[0]
-                            je.event.eventGenes = list.findAll({
-                                it.eventGenes[0] != null && it.eventGenes[0].event.id == je.event.id
-                            }).collect({it.eventGenes[0]})
-                        }
+                    DeTwoRegionJunction junction = list[0].junction[0]
+                    Set junctionEvents = list.findAll({
+                        it.junctionEvents[0] != null
+                    }).collect({it.junctionEvents[0]}).toSet()
+                    junction.junctionEvents = junctionEvents
+                    for (DeTwoRegionJunctionEvent je in junctionEvents) {
+                        je.event = list.find({
+                            it.event[0] != null && it.event[0].id == je.event.id
+                        }).event[0]
+                        je.event.eventGenes = list.findAll({
+                            it.eventGenes[0] != null && it.eventGenes[0].event.id == je.event.id
+                        }).collect({it.eventGenes[0]})
                     }
-                    def js = new JunctionsRow(assayIndexMap, list[0].junction[0])
-                    js
+                    new JunctionsRow(assayIndexMap, junction)
                 }
         )
     }
