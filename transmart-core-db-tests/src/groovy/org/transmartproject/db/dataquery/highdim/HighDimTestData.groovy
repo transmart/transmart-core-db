@@ -23,6 +23,7 @@ import org.transmartproject.db.TestDataHelper
 import org.transmartproject.db.biomarker.BioDataCorrelDescr
 import org.transmartproject.db.biomarker.BioDataCorrelationCoreDb
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
+import org.transmartproject.db.biomarker.ChromosomalBioMarkerCoreDb
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationType
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.i2b2data.I2b2Data
@@ -80,11 +81,15 @@ class HighDimTestData {
         (0..attributes.size() - 1).collect { int i ->
             assertThat([ attributes[i].name,
                     attributes[i].primaryExternalId ], everyItem(is(notNullValue())))
-            def bm = new BioMarkerCoreDb(
-                    type: type,
-                    organism: organism,
-                    primarySourceCode: primarySourceCode,
-                    *:attributes[i])
+
+            //wold be retrieved as BioMarkerCoreDb anyway if there is no chromosomal
+            // information associated with the bio marker.
+            def bm = new ChromosomalBioMarkerCoreDb(
+                type: type,
+                organism: organism,
+                primarySourceCode: primarySourceCode,
+                *:attributes[i])
+
             bm.id = baseId - 1 - i
             bm
         }

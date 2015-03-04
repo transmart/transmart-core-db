@@ -25,6 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.transmartproject.core.biomarker.BioMarkerConstraint
 import org.transmartproject.core.biomarker.BioMarkerResult
+import org.transmartproject.core.biomarker.ChromosomalBioMarker
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.highdim.SampleBioMarkerTestData
 import org.transmartproject.db.test.RuleBasedIntegrationTestMixin
@@ -167,6 +168,24 @@ class BioMarkerResourceServiceTests {
         def resultList = Lists.newArrayList result
         assertThat resultList, contains(
                 hasProperty('name', equalTo('BOGUSCPO'))
+        )
+    }
+
+    @Test
+    void testRetrieveAdditionalGeneInformation() {
+        BioMarkerResult result = bioMarkerResourceService.retrieveBioMarkers([
+                bioMarkerResourceService.createConstraint(BioMarkerConstraint.PROPERTIES_CONSTRAINT,
+                        type: 'GENE', name: 'BOGUSCPO')])
+
+        def resultList = Lists.newArrayList result
+        assertThat resultList, contains(
+                allOf(
+                    instanceOf(ChromosomalBioMarker),
+                    hasProperty('genomeBuild', equalTo('hg18')),
+                    hasProperty('chromosome', equalTo('Y')),
+                    hasProperty('start', equalTo(1000l)),
+                    hasProperty('end', equalTo(2000l))
+                )
         )
     }
 

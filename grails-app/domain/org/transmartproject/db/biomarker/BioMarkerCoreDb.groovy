@@ -39,6 +39,8 @@ class BioMarkerCoreDb implements BioMarker {
         type        column: 'bio_marker_type'
 
         version false
+
+        discriminator value: '0', formula: 'case when chromosome is null then 0 else 1 end', type: 'integer'
     }
 
     static constraints = {
