@@ -198,7 +198,7 @@ class PatientSetQueryBuilderService {
         try {
             if (operator == BETWEEN) {
                 def matcher = value =~
-                        /([+-]?[0-9]+(?:\.[0-9]*)?)(?i: and )([+-]?[0-9]+(?:\.[0-9]*)?)/
+                        /([+-]?[0-9]+(?:\.[0-9]*)?)(?i:\s+and\s+)([+-]?[0-9]+(?:\.[0-9]*)?)/
                 if (matcher.matches()) {
                     return Double.parseDouble(matcher.group(1).toString()) +
                             ' AND ' +
