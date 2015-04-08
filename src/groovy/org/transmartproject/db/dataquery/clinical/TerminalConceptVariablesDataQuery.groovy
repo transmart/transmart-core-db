@@ -52,8 +52,48 @@ class TerminalConceptVariablesDataQuery {
         if (!inited) {
             throw new IllegalStateException('init() not called successfully yet')
         }
-
-        // see TerminalConceptVariable constants
+		
+		String patientInCondition = new String()
+		Collection<Long> partialList;
+		int remainder = patientIds.size()
+		int listIt = 0;
+		int listId = 0;
+		ArrayList<Collection<Long>> splittedList = new ArrayList<Collection<Long>>();
+		
+		while(remainder > 1000) {
+				partialList = patientIds.subList(listIt,listIt+1000)
+				splittedList.add(partialList);
+				patientInCondition += "patient.id IN (:patientIds"+listId+") OR "
+				listIt = listIt + 1000
+				remainder = remainder - 1000
+				listId++
+		}
+		
+		
+		
+		partialList = patientIds.subList(listIt, patientIds.size())
+		splittedList.add(partialList);
+		patientInCondition += "patient.id IN (:patientIds"+listId+")"
+		
+		String clinicalVarString = new String()
+		Collection<Long> partialListCV;
+		int remainderCV = clinicalVariables.size()
+		int listItCV = 0;
+		int listIdCV = 0;
+		ArrayList<Collection<TerminalConceptVariable>> splittedListCV = new ArrayList<Collection<TerminalConceptVariable>>();
+		
+		while(remainderCV > 1000) {
+				splittedListCV.add(clinicalVariables.subList(listItCV,listItCV+1000));
+				clinicalVarString += "fact.conceptCode IN (:conceptCodes"+listIdCV+") OR "
+				listItCV = listItCV + 1000
+				remainderCV = remainderCV - 1000
+				listIdCV++
+		}
+		
+		splittedListCV.add(clinicalVariables.subList(listItCV, clinicalVariables.size()))
+		clinicalVarString += "fact.conceptCode IN (:conceptCodes"+listIdCV+")"
+		
+		// see TerminalConceptVariable constants
         // see ObservationFact
         Query query = session.createQuery '''
                 SELECT
@@ -64,9 +104,9 @@ class TerminalConceptVariablesDataQuery {
                     numberValue
                 FROM ObservationFact fact
                 WHERE
-                    patient.id IN (:patientIds)
+                    ('''+patientInCondition+''') 
                 AND
-                    fact.conceptCode IN (:conceptCodes)
+                    ('''+clinicalVarString+''')
                 ORDER BY
                     patient ASC,
                     conceptCode ASC'''
@@ -75,8 +115,15 @@ class TerminalConceptVariablesDataQuery {
         query.readOnly  = true
         query.fetchSize = FETCH_SIZE
 
-        query.setParameterList 'patientIds',   patientIds
-        query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
+		for (int a = 0; a <= listId; a++) {
+			query.setParameterList "patientIds"+a,   splittedList.get(a)
+		}
+		
+		for (int a = 0; a <= listIdCV; a++) {
+			List<TerminalConceptVariable> lCV = splittedListCV.get(a)
+			query.setParameterList "conceptCodes"+a, lCV*.conceptCode
+		}
+        //query.setParameterList 'conceptCodes', clinicalVariables*.conceptCode
 
         query.scroll ScrollMode.FORWARD_ONLY
     }
@@ -84,6 +131,9 @@ class TerminalConceptVariablesDataQuery {
     private void fillInTerminalConceptVariables() {
         Map<String, TerminalConceptVariable> conceptPaths = Maps.newHashMap()
         Map<String, TerminalConceptVariable> conceptCodes = Maps.newHashMap()
+		
+		ArrayList<String> conceptPathsAL = new ArrayList<String>()
+		
 
         if (!clinicalVariables) {
             throw new InvalidArgumentsException('No clinical variables specified')
@@ -109,6 +159,7 @@ class TerminalConceptVariablesDataQuery {
                             it.conceptPath)
                 }
                 conceptPaths[it.conceptPath] = it
+				conceptPathsAL.add(it.conceptPath)
             }
         }
 
@@ -121,7 +172,21 @@ class TerminalConceptVariablesDataQuery {
 
             or {
                 if (conceptPaths.keySet()) {
-                    'in' 'conceptPath', conceptPaths.keySet()
+					if (conceptPathsAL.size > 1000) {
+						int totalSize = conceptPathsAL.size
+						int remainder = totalSize
+						int currentIt = 0
+						
+						while (remainder > 1000) {
+							'in' 'conceptPath', conceptPathsAL.subList(currentIt, currentIt+1000)
+							currentIt = currentIt + 1000
+							remainder = remainder - 1000
+						}
+						'in' 'conceptPath', conceptPathsAL.subList(currentIt, totalSize)
+						
+					}
+					else
+                    	'in' 'conceptPath', conceptPaths.keySet()
                 }
                 if (conceptCodes.keySet()) {
                     'in' 'conceptCode', conceptCodes.keySet()

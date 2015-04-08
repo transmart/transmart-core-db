@@ -84,7 +84,20 @@ abstract class AbstractQuerySpecifyingType implements MetadataSelectQuerySpecifi
         if (patientIdList.size() > 0 && patientIdList[0].getClass() != Long) {
             patientIdList = patientIdList.collect( {it as Long} )
         }
-        PatientDimension.findAllByIdInList(patientIdList)
+		
+		List<Patient> totalPatientList = new ArrayList<Patient>()
+		
+		int listIt = 0;
+		int remainder = patientIdList.size() ;
+		
+		while (remainder > 1000) {
+			totalPatientList.addAll(PatientDimension.findAllByIdInList(patientIdList.subList(listIt, listIt+1000)));
+			remainder = remainder - 1000;
+			listIt = listIt + 1000
+		}
+		totalPatientList.addAll(PatientDimension.findAllByIdInList(patientIdList.subList(listIt, patientIdList.size())));
+        //PatientDimension.findAllByIdInList(patientIdList)
+		return totalPatientList
     }
 
     @Override
