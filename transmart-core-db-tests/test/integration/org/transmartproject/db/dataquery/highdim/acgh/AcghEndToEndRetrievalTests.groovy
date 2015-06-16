@@ -107,22 +107,8 @@ class AcghEndToEndRetrievalTests {
         def regionRows = Lists.newArrayList(rows)
 
         assertThat regionRows, hasSize(2)
-        /* results are ordered (asc) by region id */
+        /* results are ordered (asc) by chromosome and start position */
         assertThat regionRows[0], allOf(
-                hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
-                hasProperty('label', equalTo(testData.regions[1].name)),
-                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
-                hasProperty('platform', allOf(
-                        hasProperty('id', equalTo(testData.regionPlatform.id)),
-                        hasProperty('title', equalTo(testData.regionPlatform.title)),
-                        hasProperty('organism', equalTo(testData.regionPlatform.organism)),
-                        hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
-                        hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
-                        hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
-                )),
-        )
-
-        assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
                 hasProperty('bioMarker', equalTo(testData.regions[0].geneSymbol)),
@@ -136,13 +122,27 @@ class AcghEndToEndRetrievalTests {
                 )),
         )
 
-        assertThat regionRows[1][assayColumns[1]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[0])
-        assertThat regionRows[1][assayColumns[0]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[1])
+        assertThat regionRows[1], allOf(
+                hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
+                hasProperty('label', equalTo(testData.regions[1].name)),
+                hasProperty('bioMarker', equalTo(testData.regions[1].geneSymbol)),
+                hasProperty('platform', allOf(
+                        hasProperty('id', equalTo(testData.regionPlatform.id)),
+                        hasProperty('title', equalTo(testData.regionPlatform.title)),
+                        hasProperty('organism', equalTo(testData.regionPlatform.organism)),
+                        hasProperty('annotationDate', equalTo(testData.regionPlatform.annotationDate)),
+                        hasProperty('markerType', equalTo(testData.regionPlatform.markerType)),
+                        hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
+                )),
+        )
+
         assertThat regionRows[0][assayColumns[1]],
-                hasSameInterfaceProperties(AcghValues, testData.acghData[2])
+                hasSameInterfaceProperties(AcghValues, testData.acghData[0])
         assertThat regionRows[0][assayColumns[0]],
+                hasSameInterfaceProperties(AcghValues, testData.acghData[1])
+        assertThat regionRows[1][assayColumns[1]],
+                hasSameInterfaceProperties(AcghValues, testData.acghData[2])
+        assertThat regionRows[1][assayColumns[0]],
                 hasSameInterfaceProperties(AcghValues, testData.acghData[3])
     }
 
@@ -222,9 +222,9 @@ class AcghEndToEndRetrievalTests {
         assertThat regionRows, hasSize(2)
         assertThat regionRows, contains(
                 hasSameInterfaceProperties(
-                        Region, testData.regions[1], [ 'platform' ]),
+                        Region, testData.regions[0], [ 'platform' ]),
                 hasSameInterfaceProperties(
-                        Region, testData.regions[0], [ 'platform' ]))
+                        Region, testData.regions[1], [ 'platform' ]))
     }
 
     @Test
