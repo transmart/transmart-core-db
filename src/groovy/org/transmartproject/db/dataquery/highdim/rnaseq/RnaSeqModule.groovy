@@ -152,6 +152,8 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 property 'platform.genomeReleaseId', 'platformGenomeReleaseId'
             }
 
+            order 'region.chromosome', 'asc'
+            order 'region.start', 'asc'
             order 'region.id', 'asc'
             order 'assay.id',  'asc' // important
 

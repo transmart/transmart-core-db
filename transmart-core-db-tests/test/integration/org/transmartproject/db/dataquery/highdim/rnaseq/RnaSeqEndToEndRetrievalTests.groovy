@@ -114,8 +114,8 @@ class RnaSeqEndToEndRetrievalTests {
         def regionRows = Lists.newArrayList(rows)
 
         assertThat regionRows, hasSize(2)
-        /* results are ordered (asc) by region id */
-        assertThat regionRows[0], allOf(
+        /* results are ordered (asc) by chromosome and start position */
+        assertThat regionRows[1], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[1], ['platform']),
                 hasProperty('label', equalTo(testData.regions[1].name)),
                 hasProperty('platform', allOf(
@@ -127,7 +127,7 @@ class RnaSeqEndToEndRetrievalTests {
                     hasProperty('genomeReleaseId', equalTo(testData.regionPlatform.genomeReleaseId)),
                 )),
         )
-        assertThat regionRows[1], allOf(
+        assertThat regionRows[0], allOf(
                 hasSameInterfaceProperties(Region, testData.regions[0], ['platform']),
                 hasProperty('label', equalTo(testData.regions[0].name)),
                 hasProperty('platform', allOf(
@@ -140,19 +140,19 @@ class RnaSeqEndToEndRetrievalTests {
                 )),
         )
 
-        assertThat regionRows[1][assayColumns[1]],
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
-        assertThat regionRows[1][assayColumns[0]],
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
         assertThat regionRows[0][assayColumns[1]],
-                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[0])
         assertThat regionRows[0][assayColumns[0]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[1])
+        assertThat regionRows[1][assayColumns[1]],
+                hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[2])
+        assertThat regionRows[1][assayColumns[0]],
                 hasSameInterfaceProperties(RnaSeqValues, testData.rnaseqData[3])
 
-       assertThat(regionRows[1]*.normalizedReadcount,
+       assertThat(regionRows[0]*.normalizedReadcount,
                   contains(testData.rnaseqData[-3..-4]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
                  )
-       assertThat(regionRows[0]*.normalizedReadcount,
+       assertThat(regionRows[1]*.normalizedReadcount,
                   contains(testData.rnaseqData[-1..-2]*.normalizedReadcount.collect { Double it -> closeTo it, DELTA })
                  )
     }
@@ -284,9 +284,9 @@ class RnaSeqEndToEndRetrievalTests {
         assertThat regionRows, hasSize(2)
         assertThat regionRows, contains(
                 hasSameInterfaceProperties(
-                        Region, testData.regions[1], [ 'platform' ]),
+                        Region, testData.regions[0], [ 'platform' ]),
                 hasSameInterfaceProperties(
-                        Region, testData.regions[0], [ 'platform' ]))
+                        Region, testData.regions[1], [ 'platform' ]))
     }
 
     @Test
