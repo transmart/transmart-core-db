@@ -20,6 +20,7 @@
 package org.transmartproject.db.biomarker
 
 import com.google.common.collect.Lists
+import com.google.common.collect.Sets
 import grails.test.mixin.TestMixin
 import org.junit.Before
 import org.junit.Test
@@ -143,9 +144,9 @@ class BioMarkerResourceServiceTests {
         def resultList = Lists.newArrayList result
         result.close()
         assertThat resultList, containsInAnyOrder(
-                hasProperty('primaryExternalId', equalTo('Q15848')),
-                hasProperty('primaryExternalId', equalTo('Q15849')),
-                hasProperty('primaryExternalId', equalTo('Q15847'))
+                hasProperty('externalId', equalTo('Q15848')),
+                hasProperty('externalId', equalTo('Q15849')),
+                hasProperty('externalId', equalTo('Q15847'))
         )
     }
 
@@ -159,9 +160,9 @@ class BioMarkerResourceServiceTests {
         def resultList = Lists.newArrayList result
         result.close()
         assertThat resultList, containsInAnyOrder(
-                hasProperty('primaryExternalId', equalTo('Q15848')),
-                hasProperty('primaryExternalId', equalTo('Q15849')),
-                hasProperty('primaryExternalId', equalTo('Q15847'))
+                hasProperty('externalId', equalTo('Q15848')),
+                hasProperty('externalId', equalTo('Q15849')),
+                hasProperty('externalId', equalTo('Q15847'))
         )
     }
 
@@ -181,4 +182,20 @@ class BioMarkerResourceServiceTests {
         )
     }
 
+    @Test
+    void testAvailableTypes() {
+        def result = bioMarkerResourceService.availableTypes()
+        def types = bioMarkerTestData.allBioMarkers*.type.unique()
+        assertThat result, containsInAnyOrder(*types)
+        //containsInAnyOrder("MIRNA", "PATHWAY", "PROTEIN", "GENE", "METABOLITE")
+        result.close()
+    }
+
+    @Test
+    void testAvailableOrganisms() {
+        def result = bioMarkerResourceService.availableOrganisms()
+        def organisms = bioMarkerTestData.allBioMarkers*.organism.unique()
+        assertThat result, containsInAnyOrder(*organisms)
+        result.close()
+    }
 }
