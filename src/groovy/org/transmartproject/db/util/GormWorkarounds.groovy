@@ -3,6 +3,8 @@ package org.transmartproject.db.util
 import grails.orm.HibernateCriteriaBuilder
 import org.codehaus.groovy.grails.orm.hibernate.query.HibernateQuery
 import org.grails.datastore.mapping.query.api.QueryableCriteria
+import org.hibernate.ScrollableResults
+import org.hibernate.StatelessSession
 import org.hibernate.criterion.Criterion
 import org.hibernate.criterion.Subqueries
 import org.hibernate.engine.SessionImplementor
@@ -75,5 +77,10 @@ class GormWorkarounds {
                 queryableCriteria)
 
         detachedCriteria;
+    }
+
+    final static ScrollableResults executeQuery(SessionImplementor session, String query, Map namedParams) {
+        StatelessSession sess = (StatelessSession) session
+        return sess.createQuery(query).setProperties(namedParams).scroll()
     }
 }

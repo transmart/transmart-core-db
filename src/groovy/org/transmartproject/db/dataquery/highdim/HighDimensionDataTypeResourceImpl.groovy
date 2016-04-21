@@ -23,7 +23,9 @@ import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
+import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
@@ -38,7 +40,9 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCrit
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
+import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
+import static org.transmartproject.db.util.GormWorkarounds.executeQuery
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 @Log4j
@@ -113,6 +117,15 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 criteriaBuilder.instance.scroll(ScrollMode.FORWARD_ONLY),
                 assays.collect { new AssayColumnImpl(it) },
                 projection)
+    }
+
+    IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
+
+        ScrollableResults result = executeQuery(openSession(),
+                "select b.name from BioMarkerCoreDb b where b.externalId in ($module.biomarkerHql)",
+                [platforms: platforms])
+
+        return new ResultIteratorWrappingIterable<String>(result)
     }
 
     @Override

@@ -23,7 +23,7 @@ class SimpleScrollableResultsWrappingIteratorTests {
         def logEvents = []
         logger.addAppender([doAppend: { LoggingEvent event -> logEvents << event }] as Appender)
 
-        new ScrollableResultsWrappingIterable<String>(mock(ScrollableResults)).iterator().finalize()
+        new ResultIteratorWrappingIterable<String>(mock(ScrollableResults)).iterator().finalize()
 
         assertThat logEvents, contains(
                 hasProperty('level', equalTo(Level.ERROR))
@@ -32,7 +32,7 @@ class SimpleScrollableResultsWrappingIteratorTests {
 
     @Test
     void testIteratorIsCalledTwice() {
-        def testee = new ScrollableResultsWrappingIterable<String>(mock(ScrollableResults))
+        def testee = new ResultIteratorWrappingIterable<String>(mock(ScrollableResults))
         testee.iterator()
 
         shouldFail(IllegalStateException, { ->

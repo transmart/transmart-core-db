@@ -19,9 +19,11 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import com.google.common.collect.AbstractIterator
 import com.google.common.collect.HashMultimap
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
@@ -29,8 +31,12 @@ import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.core.exceptions.NoSuchResourceException
+import org.transmartproject.core.ontology.ConceptsResource
+import org.transmartproject.core.ontology.OntologyTerm
 import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayCriteriaConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.parameterproducers.StandardAssayConstraintFactory
+import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
 @Component
 class HighDimensionResourceService implements HighDimensionResource {
@@ -48,12 +54,15 @@ class HighDimensionResourceService implements HighDimensionResource {
      * findAutowiringMetadata(String beanName, Class<?> clazz) is called with
      * '(inner bean)', ConceptsResourceService as parameters, and then does a
      * lookup on a cache whose key is preferably the bean name.
-     * Only if the bean name is empty does it use the class name, excpet the
+     * Only if the bean name is empty does it use the class name, except the
      * the bean name is '(inner bean)', which I'm guessing is used with other
      * inner beans.
      */
     @Autowired
     StandardAssayConstraintFactory assayConstraintFactory
+
+    @Autowired
+    ConceptsResource conceptsResource
 
     Map<String, Closure<HighDimensionDataTypeResource>> dataTypeRegistry = new HashMap()
 
@@ -72,7 +81,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     }
 
     @Override
-    Map<HighDimensionDataTypeResource, Collection<Assay>> getSubResourcesAssayMultiMap(
+    Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> getSubResourcesAssayMultiMap(
             List<AssayConstraint> assayConstraints) {
 
         List<DeSubjectSampleMapping> assays = DeSubjectSampleMapping.withCriteria {
@@ -139,4 +148,30 @@ class HighDimensionResourceService implements HighDimensionResource {
         HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
     }
 
+    @Override IterableResult<String> biomarkersForDataset(Map args, String conceptKey) {
+        boolean raw = args.rawBiomarkers ?: false
+        boolean related = args.related ?: true
+        Integer limit = args.limit ?: null
+
+        OntologyTerm term = conceptsResource.getByKey(conceptKey)
+
+        Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> platformMap =
+                getSubResourcesAssayMultiMap([new DefaultOntologyTermCriteriaConstraint(term)])
+
+        def platformsIterator = platformMap.entrySet().iterator()
+
+        return ResultIteratorWrappingIterable.concat(
+            new AbstractIterator<IterableResult<String>>() { IterableResult<String> computeNext() {
+                if(!platformsIterator.hasNext()) return endOfData()
+                Map.Entry entry = platformsIterator.next()
+                return biomarkersForPlatform(entry.key, entry.value)
+            }}
+        )
+    }
+
+    private def biomarkersForPlatform(HighDimensionDataTypeResource typeResource,
+                                                         Collection<DeSubjectSampleMapping> assays) {
+        List<String> platforms = assays.collect { it.platform.id }.unique()
+        return typeResource.retrieveBioMarkers(platforms)
+    }
 }

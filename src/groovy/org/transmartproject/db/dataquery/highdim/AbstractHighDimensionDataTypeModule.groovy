@@ -151,4 +151,8 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         int i = 0
         assays.collectEntries { [ it, i++ ] }
     }
+
+    String getBiomarkerHql() {
+        throw UnsupportedOperationException("HighDimensionDataTypeModule.getBiomarkerHql")
+    }
 }

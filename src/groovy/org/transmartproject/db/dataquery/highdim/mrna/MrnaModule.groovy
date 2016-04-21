@@ -36,7 +36,6 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
 
-import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
 
 class MrnaModule extends AbstractHighDimensionDataTypeModule {
@@ -61,6 +60,9 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Autowired
     CorrelationTypesRegistry correlationTypesRegistry
+
+    final String biomarkerHql =
+            "select cast(probe.geneId as string) from DeMrnaAnnotationCoreDb as probe where probe.gplId in :platforms"
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection,

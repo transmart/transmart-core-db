@@ -113,4 +113,6 @@ public interface HighDimensionDataTypeModule {
      * @return List of marker types supported by this module
      */
     List<String> getPlatformMarkerTypes()
+
+    String getBiomarkerHql()
 }

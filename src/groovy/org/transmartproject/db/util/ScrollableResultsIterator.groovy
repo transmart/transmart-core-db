@@ -4,7 +4,7 @@ import groovy.util.logging.Log4j
 import org.hibernate.ScrollableResults
 
 @Log4j
-class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
+class ScrollableResultsIterator<T> implements ResultIterator<T> {
 
     private ScrollableResults scrollableResults
     private Boolean hasNext = null
@@ -45,7 +45,7 @@ class ScrollableResultsIterator<T> implements Iterator<T>, Closeable {
     }
 
     @Override
-    protected void finalize() throws Throwable {
+    void finalize() throws Throwable {
         super.finalize()
         if (!closed) {
             log.error('Failed to call close before the object was scheduled to ' +

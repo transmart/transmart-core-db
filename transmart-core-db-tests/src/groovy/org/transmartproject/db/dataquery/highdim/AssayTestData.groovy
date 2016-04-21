@@ -28,13 +28,14 @@ import static org.transmartproject.db.dataquery.highdim.HighDimTestData.save
 import static org.transmartproject.db.ontology.ConceptTestData.createI2b2
 import static org.transmartproject.db.ontology.ConceptTestData.createTableAccess
 
+@Singleton
 class AssayTestData {
 
     DeGplInfo platform = {
         def res = new DeGplInfo(
                 title: 'Affymetrix Human Genome U133A 2.0 Array',
                 organism: 'Homo Sapiens',
-                markerTypeId: 'Gene Expression')
+                markerType: 'Gene Expression')
         res.id = 'BOGUSGPL570'
         res
     }()
@@ -43,7 +44,7 @@ class AssayTestData {
         def res = new DeGplInfo(
                 title: 'Another platform',
                 organism: 'Homo Sapiens',
-                markerTypeId: 'Gene Expression')
+                markerType: 'Gene Expression')
         res.id = 'BOGUSANNOTH'
         res
     }()

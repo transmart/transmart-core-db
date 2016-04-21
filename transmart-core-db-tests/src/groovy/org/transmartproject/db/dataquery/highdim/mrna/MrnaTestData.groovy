@@ -21,6 +21,7 @@ package org.transmartproject.db.dataquery.highdim.mrna
 
 import grails.util.Holders
 import org.transmartproject.db.biomarker.BioMarkerCoreDb
+import org.transmartproject.db.dataquery.highdim.AssayTestData
 import org.transmartproject.db.dataquery.highdim.DeGplInfo
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
@@ -39,17 +40,11 @@ class MrnaTestData {
 
     SampleBioMarkerTestData bioMarkerTestData
 
+    AssayTestData assayTestData = AssayTestData.instance
+
     private String conceptCode
 
-    DeGplInfo platform = {
-        def res = new DeGplInfo(
-                title: 'Affymetrix Human Genome U133A 2.0 Array',
-                organism: 'Homo Sapiens',
-                markerType: 'Gene Expression',
-                genomeReleaseId: 'hg19')
-        res.id = 'BOGUSGPL570'
-        res
-    }()
+    DeGplInfo platform = assayTestData.platform
 
     MrnaTestData(String conceptCode = 'concept code #1',
                  SampleBioMarkerTestData bioMarkerTestData = null) {
@@ -86,11 +81,13 @@ class MrnaTestData {
         ]
     }()
 
-    List<PatientDimension> patients =
-        HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
+    List<PatientDimension> patients = assayTestData.patients
+        //HighDimTestData.createTestPatients(2, -300, TRIAL_NAME)
 
-    @Lazy List<DeSubjectSampleMapping> assays = {
-        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode) }()
+//    @Lazy List<DeSubjectSampleMapping> assays = {
+//        HighDimTestData.createTestAssays(patients, -400, platform, TRIAL_NAME, conceptCode) }()
+
+    List<DeSubjectSampleMapping> assays = assayTestData.assays
 
     @Lazy List<DeSubjectMicroarrayDataCoreDb> microarrayData = {
         def common = [

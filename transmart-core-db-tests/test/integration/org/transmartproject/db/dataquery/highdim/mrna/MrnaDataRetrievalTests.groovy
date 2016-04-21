@@ -33,11 +33,13 @@ import org.transmartproject.core.dataquery.TabularResult
 import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
+import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.db.dataquery.highdim.DeSubjectSampleMapping
 import org.transmartproject.db.dataquery.highdim.HighDimTestData
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeModule
 import org.transmartproject.db.dataquery.highdim.HighDimensionDataTypeResourceImpl
 import org.transmartproject.db.dataquery.highdim.assayconstraints.AssayIdListCriteriaConstraint
+import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultOntologyTermCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DefaultTrialNameCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.assayconstraints.DisjunctionAssayCriteriaConstraint
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
@@ -361,6 +363,13 @@ class MrnaDataRetrievalTests {
             session.clear()
             schemaDump.delete()
         }
+    }
+
+    @Test
+    void testBioMarkers() {
+        def resourceImpl = resource as HighDimensionDataTypeResourceImpl
+        def constraint = resource.createAssayConstraint([concept_key: '\\Public Studies\\GSE8581\\Biomarker Data\\Affymetrix Human Genome U133 Plus 2.0 Array\\Lung\\'], AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
+        resourceImpl.retrieveBioMarkers()
     }
 
     private runStatement(String statement) {
