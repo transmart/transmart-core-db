@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013-2014 The Hyve B.V.
+ * Copyright © 2013-2016 The Hyve B.V.
  *
  * This file is part of transmart-core-db.
  *
@@ -121,7 +121,7 @@ class HighDimensionResourceService implements HighDimensionResource {
                 } /* may return null */
     }.memoizeAtMost(MAX_CACHED_PLATFORM_MAPPINGS)
 
-    @Lazy Closure<HighDimensionDataTypeResourceImpl> cachingDataTypeResourceProducer =
+    @Lazy Closure<HighDimensionDataTypeResource> cachingDataTypeResourceProducer =
         this.&getSubResourceForType.memoizeAtMost(MAX_CACHED_DATA_TYPE_RESOURCES)
 
     /**
@@ -138,6 +138,5 @@ class HighDimensionResourceService implements HighDimensionResource {
         this.dataTypeRegistry[moduleName] = factory
         HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
     }
-
 
 }

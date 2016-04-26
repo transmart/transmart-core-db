@@ -9,7 +9,7 @@ environments {
     development {
         dataSource {
             driverClassName = 'org.postgresql.Driver'
-            url             = 'jdbc:postgresql://localhost:5433/transmart'
+            url             = 'jdbc:postgresql://localhost:5432/transmart'
             dialect         = 'org.hibernate.dialect.PostgreSQLDialect'
 
 //            driverClassName = 'oracle.jdbc.driver.OracleDriver'
