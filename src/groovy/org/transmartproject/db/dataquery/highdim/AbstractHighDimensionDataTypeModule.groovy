@@ -163,9 +163,10 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         assays.collectEntries { [ it, i++ ] }
     }
 
-    String biomarkerHql =
-            "select cast(probe.$biomarkerField as string) from $annotationClass.name as probe " +
-                    "where probe.gplId in :platforms"
+    @Lazy String biomarkerHql = {
+        "select cast(probe.$biomarkerField as string) from $annotationClass.name as probe " +
+                "where probe.gplId in :platforms"
+    }()
 
     @Override /*@Nullable*/
     IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
