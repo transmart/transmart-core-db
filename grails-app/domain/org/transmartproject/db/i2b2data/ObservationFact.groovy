@@ -33,7 +33,7 @@ class ObservationFact implements Serializable {
 
     String     valueType
     String     textValue
-    BigDecimal numberValue
+    Double numberValue
     String     valueFlag
     String     sourcesystemCd
 
