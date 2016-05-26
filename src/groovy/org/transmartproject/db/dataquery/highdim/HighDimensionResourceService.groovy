@@ -64,7 +64,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     @Autowired
     ConceptsResource conceptsResource
 
-    Map<String, Closure<HighDimensionDataTypeResource>> dataTypeRegistry = new HashMap()
+    Map<String, Closure<HighDimensionDataTypeResourceImpl>> dataTypeRegistry = new HashMap()
 
     @Override
     Set<String> getKnownTypes() {
@@ -72,7 +72,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     }
 
     @Override
-    HighDimensionDataTypeResource getSubResourceForType(String dataTypeName)
+    HighDimensionDataTypeResourceImpl getSubResourceForType(String dataTypeName)
             throws NoSuchResourceException {
         if (!dataTypeRegistry.containsKey(dataTypeName)) {
             throw new NoSuchResourceException("Unknown data type: $dataTypeName")
@@ -81,7 +81,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     }
 
     @Override
-    Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> getSubResourcesAssayMultiMap(
+    Map<HighDimensionDataTypeResourceImpl, Collection<DeSubjectSampleMapping>> getSubResourcesAssayMultiMap(
             List<AssayConstraint> assayConstraints) {
 
         List<DeSubjectSampleMapping> assays = DeSubjectSampleMapping.withCriteria {
@@ -130,7 +130,7 @@ class HighDimensionResourceService implements HighDimensionResource {
                 } /* may return null */
     }.memoizeAtMost(MAX_CACHED_PLATFORM_MAPPINGS)
 
-    @Lazy Closure<HighDimensionDataTypeResource> cachingDataTypeResourceProducer =
+    @Lazy Closure<HighDimensionDataTypeResourceImpl> cachingDataTypeResourceProducer =
         this.&getSubResourceForType.memoizeAtMost(MAX_CACHED_DATA_TYPE_RESOURCES)
 
     @Override IterableResult<String> biomarkersForDataset(Map args, String conceptKey) {
@@ -140,7 +140,7 @@ class HighDimensionResourceService implements HighDimensionResource {
 
         OntologyTerm term = conceptsResource.getByKey(conceptKey)
 
-        Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> platformMap =
+        Map<HighDimensionDataTypeResourceImpl, Collection<DeSubjectSampleMapping>> platformMap =
                 getSubResourcesAssayMultiMap([new DefaultOntologyTermCriteriaConstraint(term)])
 
         def platformsIterator = platformMap.entrySet().iterator()
@@ -175,7 +175,7 @@ class HighDimensionResourceService implements HighDimensionResource {
      * @param factory
      */
     void registerHighDimensionDataTypeModule(String moduleName,
-                                             Closure<HighDimensionDataTypeResource> factory) {
+                                             Closure<HighDimensionDataTypeResourceImpl> factory) {
         this.dataTypeRegistry[moduleName] = factory
         HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
     }
