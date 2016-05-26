@@ -42,6 +42,7 @@ import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProje
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.SimpleRealProjectionsFactory
+import org.transmartproject.db.dataquery.highdim.rnaseqcog.DeRnaseqAnnotation
 
 import static org.hibernate.sql.JoinFragment.INNER_JOIN
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
@@ -64,6 +65,11 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
 
     final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
         ['id', 'name', 'cytoband', 'chromosome', 'start', 'end', 'numberOfProbes', 'bioMarker'])
+
+    final Class dataClass = DeSubjectRnaseqData
+    final Class annotationClass = DeRnaseqAnnotation
+
+    final String biomarkerField = 'geneId'
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -95,7 +101,7 @@ class RnaSeqModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'region', 'geneId')
+                        'GENE', 'region', biomarkerField)
         ]
     }
 

@@ -79,8 +79,14 @@ class GormWorkarounds {
         detachedCriteria;
     }
 
+    /*
+     * In the HighDimensionDataTypeResource we only have a SessionImplementor availble, but that one is also a
+     * StatelessSession
+     */
     final static ScrollableResults executeQuery(SessionImplementor session, String query, Map namedParams) {
-        StatelessSession sess = (StatelessSession) session
-        return sess.createQuery(query).setProperties(namedParams).scroll()
+        return executeQuery((StatelessSession) session, query, namedParams)
+    }
+    final static ScrollableResults executeQuery(StatelessSession session, String query, Map namedParams) {
+        return session.createQuery(query).setProperties(namedParams).scroll()
     }
 }

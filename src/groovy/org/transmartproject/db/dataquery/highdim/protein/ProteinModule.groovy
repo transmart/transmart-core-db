@@ -53,6 +53,11 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> rowProperties = typesMap(ProteinDataRow,
             ['uniprotName', 'peptide'])
 
+    final Class dataClass = DeSubjectProteinData
+    final Class annotationClass = DeProteinAnnotation
+
+    final String biomarkerField = 'uniprotId'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -64,7 +69,7 @@ class ProteinModule extends AbstractHighDimensionDataTypeModule {
 
     @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
         new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                'PROTEIN', 'a', 'uniprotId')
+                'PROTEIN', 'a', biomarkerField)
 
     @Override
     protected List<DataRetrievalParameterFactory> createAssayConstraintFactories() {

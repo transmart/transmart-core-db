@@ -53,6 +53,11 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> rowProperties = typesMap(RbmRow,
             ['antigenName', 'unit', 'uniprotName'])
 
+    final Class dataClass = DeSubjectRbmData
+    final Class annotationClass = DeRbmAnnotation
+
+    final String biomarkerField = 'uniprotId'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -72,7 +77,7 @@ class RbmModule extends AbstractHighDimensionDataTypeModule {
         [
                 standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'PROTEIN', 'p', 'uniprotId'),
+                        'PROTEIN', 'p', biomarkerField),
         ]
     }
 

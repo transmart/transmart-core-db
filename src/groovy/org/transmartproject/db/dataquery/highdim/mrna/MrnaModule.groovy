@@ -52,6 +52,11 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> rowProperties = typesMap(ProbeRow,
             ['probe', 'geneId', 'geneSymbol'])
 
+    final Class dataClass = DeSubjectMicroarrayDataCoreDb
+    final Class annotationClass = DeMrnaAnnotationCoreDb
+
+    final String biomarkerField = 'geneId'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -60,9 +65,6 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
 
     @Autowired
     CorrelationTypesRegistry correlationTypesRegistry
-
-    final String biomarkerHql =
-            "select cast(probe.geneId as string) from DeMrnaAnnotationCoreDb as probe where probe.gplId in :platforms"
 
     @Override
     HibernateCriteriaBuilder prepareDataQuery(Projection projection,
@@ -154,7 +156,7 @@ class MrnaModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'p', 'geneId') ]
+                        'GENE', 'p', biomarkerField) ]
     }
 
     @Override

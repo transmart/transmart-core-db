@@ -55,6 +55,11 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> rowProperties = typesMap(MetaboliteDataRow,
             ['hmdbId', 'biochemicalName'])
 
+    final Class dataClass = DeSubjectMetabolomicsData
+    final Class annotationClass = DeMetaboliteAnnotation
+
+    final String biomarkerField = 'hmdbId'
+
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
 
@@ -99,7 +104,7 @@ class MetaboliteModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'METABOLITE', 'a', 'hmdbId')]
+                        'METABOLITE', 'a', biomarkerField)]
     }
 
     @Override

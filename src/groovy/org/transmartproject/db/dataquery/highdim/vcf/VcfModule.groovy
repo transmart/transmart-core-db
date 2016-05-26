@@ -24,7 +24,9 @@ import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.hibernate.transform.Transformers
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.InvalidArgumentsException
@@ -36,8 +38,10 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
+import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
+import static org.transmartproject.db.util.GormWorkarounds.executeQuery
 
 class VcfModule extends AbstractHighDimensionDataTypeModule {
 
@@ -64,6 +68,11 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
 
     final Map<String, Class> rowProperties = typesMap(VcfDataRow,
     ['chromosome', 'position', 'rsId', 'referenceAllele'])
+
+    final Class dataClass = DeVariantSummaryDetailGene
+    final Class annotationClass = null
+
+    final String biomarkerField = 'geneId'
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -93,7 +102,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
             standardDataConstraintFactory,
             chromosomeSegmentConstraintFactory,
             new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                    'GENE', 'summary', 'geneId')
+                    'GENE', 'summary', biomarkerField)
         ]
     }
 
@@ -208,4 +217,42 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
                 }
         )
     }
+
+    @Override /*@Nullable*/
+    IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
+        throw UnsupportedOperationException("Retrieving biomarkers by platform is not supported for VCF")
+    }
+
+    /**
+     * Apparently there is no link between the platform and the VCF data directly, so we need to use the assays.
+     *
+     * @param assays
+     * @return
+     */
+    @Override /*@Nullable*/
+    IterableResult<String> retrieveBioMarkersForAssays(Collection<Assay> assays) {
+
+        String query = "select b.name from BioMarkerCoreDb b where b.externalId in (" +
+                "select geneId from DeVariantSummaryDetailGene where assay in :assays" +
+                ")"
+
+        /* alternative:
+         * The above query uses a view, this query does the same join explicitly, but joining only the data that is
+         * needed so this query may be faster.
+         */
+        //String query = "select b.name from BioMarkerCoreDb b where b.externalId in (" +
+        //        "select geneid.textValue as geneId " +
+        //        "from DeVariantSubjectSummaryCoreDb summary, DeVariantPopulationData geneid " +
+        //        "where geneid.dataset = summary.dataset " +
+        //            "and geneid.chromosome = summary.chr " +
+        //            "and geneid.position = summary.pos " +
+        //            "and geneid.infoName = 'GID' " +
+        //            "and summary.assay in :assays" +
+        //        ")"
+
+        ScrollableResults result = executeQuery(sessionFactory.openStatelessSession(), query, [assays: assays])
+
+        return new ResultIteratorWrappingIterable<String>(result)
+    }
+
 }

@@ -34,6 +34,7 @@ import org.transmartproject.db.dataquery.highdim.AbstractHighDimensionDataTypeMo
 import org.transmartproject.db.dataquery.highdim.DefaultHighDimensionTabularResult
 import org.transmartproject.db.dataquery.highdim.PlatformImpl
 import org.transmartproject.db.dataquery.highdim.chromoregion.ChromosomeSegmentConstraintFactory
+import org.transmartproject.db.dataquery.highdim.chromoregion.DeChromosomalRegion
 import org.transmartproject.db.dataquery.highdim.chromoregion.RegionRowImpl
 import org.transmartproject.db.dataquery.highdim.correlations.CorrelationTypesRegistry
 import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataConstraintFactory
@@ -60,6 +61,12 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
 
     final Map<String, Class> rowProperties = typesMap(RegionRowImpl,
             ['id', 'name', 'cytoband', 'chromosome', 'start', 'end', 'numberOfProbes', 'bioMarker'])
+
+    final Class dataClass = DeChromosomalRegion
+    final Class annotationClass = DeSubjectAcghData
+
+    final String biomarkerField = 'geneId'
+
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
@@ -91,7 +98,7 @@ class AcghModule extends AbstractHighDimensionDataTypeModule {
                 standardDataConstraintFactory,
                 chromosomeSegmentConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'region', 'geneId')
+                        'GENE', 'region', biomarkerField)
         ]
     }
 

@@ -52,6 +52,11 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
     final Map<String, Class> rowProperties = typesMap(MirnaProbeRow,
             ['probeId', 'mirnaId'])
 
+    final Class dataClass = DeSubjectMirnaData
+    final Class annotationClass = DeQpcrMirnaAnnotation
+
+    final String biomarkerField = 'mirnaId'
+
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
 
@@ -77,7 +82,7 @@ abstract class AbstractMirnaSharedModule extends AbstractHighDimensionDataTypeMo
 
     @Lazy private DataRetrievalParameterFactory searchKeywordDataConstraintFactory =
         new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                'MIRNA', 'p', 'mirnaId')
+                'MIRNA', 'p', biomarkerField)
 
     @Override
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {

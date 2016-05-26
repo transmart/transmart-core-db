@@ -23,10 +23,10 @@ import grails.orm.HibernateCriteriaBuilder
 import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Log4j
 import org.hibernate.ScrollMode
-import org.hibernate.ScrollableResults
 import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -40,9 +40,7 @@ import org.transmartproject.db.dataquery.highdim.assayconstraints.MarkerTypeCrit
 import org.transmartproject.db.dataquery.highdim.dataconstraints.CriteriaDataConstraint
 import org.transmartproject.db.dataquery.highdim.projections.CriteriaProjection
 import org.transmartproject.db.ontology.I2b2
-import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
-import static org.transmartproject.db.util.GormWorkarounds.executeQuery
 import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
 
 @Log4j
@@ -119,13 +117,18 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 projection)
     }
 
+    @Override /*@Nullable*/
     IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
+        return module.retrieveBioMarkers(platforms)
+    }
 
-        ScrollableResults result = executeQuery(openSession(),
-                "select b.name from BioMarkerCoreDb b where b.externalId in ($module.biomarkerHql)",
-                [platforms: platforms])
-
-        return new ResultIteratorWrappingIterable<String>(result)
+    /**
+     * This method isn't exposed in core-api since I'm not sure we should. It is only used internally at the moment.
+     * @param assays
+     * @return
+     */
+    IterableResult<String> retrieveBioMarkersByAssays(Collection<Assay> assays) {
+        return module.retrieveBioMarkersForAssays(assays)
     }
 
     @Override

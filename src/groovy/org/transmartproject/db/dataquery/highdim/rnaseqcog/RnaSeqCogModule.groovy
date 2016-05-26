@@ -55,6 +55,11 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     final Map<String, Class> rowProperties = typesMap(RnaSeqCogDataRow,
             ['annotationId', 'geneSymbol', 'geneId'])
 
+    final Class dataClass = DeSubjectRnaData
+    final Class annotationClass = DeRnaseqAnnotation
+
+    final String biomarkerField = 'geneId'
+
     @Autowired
     StandardAssayConstraintFactory standardAssayConstraintFactory
 
@@ -141,7 +146,7 @@ class RnaSeqCogModule extends AbstractHighDimensionDataTypeModule {
     protected List<DataRetrievalParameterFactory> createDataConstraintFactories() {
         [ standardDataConstraintFactory,
                 new SearchKeywordDataConstraintFactory(correlationTypesRegistry,
-                        'GENE', 'ann', 'geneId') ]
+                        'GENE', 'ann', biomarkerField) ]
     }
 
     @Override

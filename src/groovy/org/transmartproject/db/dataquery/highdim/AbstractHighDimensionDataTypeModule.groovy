@@ -19,16 +19,23 @@
 
 package org.transmartproject.db.dataquery.highdim
 
+import com.google.common.collect.Sets
+import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.transmartproject.core.IterableResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
 import org.transmartproject.core.dataquery.highdim.projections.Projection
 import org.transmartproject.core.exceptions.UnsupportedByDataTypeException
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
+import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
 import javax.annotation.PostConstruct
+
+import static org.transmartproject.db.util.GormWorkarounds.executeQuery
 
 abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataTypeModule {
 
@@ -40,6 +47,10 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
     protected List<DataRetrievalParameterFactory> dataConstraintFactories
 
     protected List<DataRetrievalParameterFactory> projectionFactories
+
+    abstract protected Class getDataClass()
+    abstract protected Class getAnnotationClass()
+    abstract protected String getBiomarkerField()
 
     @Autowired
     HighDimensionResourceService highDimensionResourceService
@@ -152,7 +163,23 @@ abstract class AbstractHighDimensionDataTypeModule implements HighDimensionDataT
         assays.collectEntries { [ it, i++ ] }
     }
 
-    String getBiomarkerHql() {
-        throw UnsupportedOperationException("HighDimensionDataTypeModule.getBiomarkerHql")
+    String biomarkerHql =
+            "select cast(probe.$biomarkerField as string) from $annotationClass.name as probe " +
+                    "where probe.gplId in :platforms"
+
+    @Override /*@Nullable*/
+    IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
+
+        ScrollableResults result = executeQuery(sessionFactory.openStatelessSession(),
+                "select b.name from BioMarkerCoreDb b where b.externalId in ($biomarkerHql)",
+                [platforms: platforms])
+
+        return new ResultIteratorWrappingIterable<String>(result)
+    }
+
+    @Override /*@Nullable*/
+    IterableResult<String> retrieveBioMarkersForAssays(Collection<Assay> assays) {
+        Collection<String> platforms = Sets.newHashSet(assays.collect { it.platform.id })
+        return platforms ? retrieveBioMarkers(platforms) : null
     }
 }

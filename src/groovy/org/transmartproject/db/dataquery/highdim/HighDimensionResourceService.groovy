@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.assay.Assay
-import org.transmartproject.core.dataquery.highdim.HighDimensionDataTypeResource
 import org.transmartproject.core.dataquery.highdim.HighDimensionResource
 import org.transmartproject.core.dataquery.highdim.Platform
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
@@ -158,11 +157,9 @@ class HighDimensionResourceService implements HighDimensionResource {
         )
     }
 
-    private def biomarkersForPlatform(HighDimensionDataTypeResource typeResource,
+    private def biomarkersForPlatform(HighDimensionDataTypeResourceImpl typeResource,
                                       Collection<DeSubjectSampleMapping> assays) {
-        List<String> platforms = assays.collect { it.platform.id }.unique()
-        if (!platforms) return null
-        return typeResource.retrieveBioMarkers(platforms)
+        return assays ? typeResource.retrieveBioMarkersByAssays(assays) : null
     }
 
     /**

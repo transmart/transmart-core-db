@@ -23,7 +23,9 @@ import grails.orm.HibernateCriteriaBuilder
 import org.hibernate.ScrollableResults
 import org.hibernate.SessionFactory
 import org.hibernate.engine.SessionImplementor
+import org.transmartproject.core.IterableResult
 import org.transmartproject.core.dataquery.TabularResult
+import org.transmartproject.core.dataquery.assay.Assay
 import org.transmartproject.core.dataquery.highdim.AssayColumn
 import org.transmartproject.core.dataquery.highdim.assayconstraints.AssayConstraint
 import org.transmartproject.core.dataquery.highdim.dataconstraints.DataConstraint
@@ -114,5 +116,7 @@ public interface HighDimensionDataTypeModule {
      */
     List<String> getPlatformMarkerTypes()
 
-    String getBiomarkerHql()
+    IterableResult<String> retrieveBioMarkers(Collection<String> platforms)
+
+    IterableResult<String> retrieveBioMarkersForAssays(Collection<Assay> assays)
 }
