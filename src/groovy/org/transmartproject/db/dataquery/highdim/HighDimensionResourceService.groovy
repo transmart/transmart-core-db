@@ -133,6 +133,38 @@ class HighDimensionResourceService implements HighDimensionResource {
     @Lazy Closure<HighDimensionDataTypeResource> cachingDataTypeResourceProducer =
         this.&getSubResourceForType.memoizeAtMost(MAX_CACHED_DATA_TYPE_RESOURCES)
 
+    @Override IterableResult<String> biomarkersForDataset(Map args, String conceptKey) {
+        boolean searchKeywords = args.searchKeywords ?: false
+        boolean related = args.related ?: true
+        Integer limit = args.limit ?: null
+
+        OntologyTerm term = conceptsResource.getByKey(conceptKey)
+
+        Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> platformMap =
+                getSubResourcesAssayMultiMap([new DefaultOntologyTermCriteriaConstraint(term)])
+
+        def platformsIterator = platformMap.entrySet().iterator()
+
+        return ResultIteratorWrappingIterable.concat(
+                new AbstractIterator<IterableResult<String>>() { IterableResult<String> computeNext() {
+                    def biomarkers = null
+                    while (!biomarkers) {
+                        if(!platformsIterator.hasNext()) return endOfData()
+                        Map.Entry entry = platformsIterator.next()
+                        biomarkers = biomarkersForPlatform(entry.key, entry.value)
+                    }
+                    return biomarkers
+                }}
+        )
+    }
+
+    private def biomarkersForPlatform(HighDimensionDataTypeResource typeResource,
+                                      Collection<DeSubjectSampleMapping> assays) {
+        List<String> platforms = assays.collect { it.platform.id }.unique()
+        if (!platforms) return null
+        return typeResource.retrieveBioMarkers(platforms)
+    }
+
     /**
      * Register a new high dimensional type. Factory is a closure that takes a
      * map with one entry: name: <module name>
@@ -146,32 +178,5 @@ class HighDimensionResourceService implements HighDimensionResource {
                                              Closure<HighDimensionDataTypeResource> factory) {
         this.dataTypeRegistry[moduleName] = factory
         HighDimensionResourceService.log.debug "Registered high dimensional data type module '$moduleName'"
-    }
-
-    @Override IterableResult<String> biomarkersForDataset(Map args, String conceptKey) {
-        boolean raw = args.rawBiomarkers ?: false
-        boolean related = args.related ?: true
-        Integer limit = args.limit ?: null
-
-        OntologyTerm term = conceptsResource.getByKey(conceptKey)
-
-        Map<HighDimensionDataTypeResource, Collection<DeSubjectSampleMapping>> platformMap =
-                getSubResourcesAssayMultiMap([new DefaultOntologyTermCriteriaConstraint(term)])
-
-        def platformsIterator = platformMap.entrySet().iterator()
-
-        return ResultIteratorWrappingIterable.concat(
-            new AbstractIterator<IterableResult<String>>() { IterableResult<String> computeNext() {
-                if(!platformsIterator.hasNext()) return endOfData()
-                Map.Entry entry = platformsIterator.next()
-                return biomarkersForPlatform(entry.key, entry.value)
-            }}
-        )
-    }
-
-    private def biomarkersForPlatform(HighDimensionDataTypeResource typeResource,
-                                                         Collection<DeSubjectSampleMapping> assays) {
-        List<String> platforms = assays.collect { it.platform.id }.unique()
-        return typeResource.retrieveBioMarkers(platforms)
     }
 }
