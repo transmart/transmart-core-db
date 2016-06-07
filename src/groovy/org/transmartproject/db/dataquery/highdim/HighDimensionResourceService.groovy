@@ -132,10 +132,7 @@ class HighDimensionResourceService implements HighDimensionResource {
     @Lazy Closure<HighDimensionDataTypeResourceImpl> cachingDataTypeResourceProducer =
         this.&getSubResourceForType.memoizeAtMost(MAX_CACHED_DATA_TYPE_RESOURCES)
 
-    @Override IterableResult<String> biomarkersForDataset(Map args, String conceptKey) {
-        boolean searchKeywords = args.searchKeywords ?: false
-        boolean related = args.related ?: true
-        Integer limit = args.limit ?: null
+    @Override IterableResult<String> biomarkersForDataset(Map options, String conceptKey) {
 
         OntologyTerm term = conceptsResource.getByKey(conceptKey)
 
@@ -150,7 +147,7 @@ class HighDimensionResourceService implements HighDimensionResource {
                     while (!biomarkers) {
                         if(!platformsIterator.hasNext()) return endOfData()
                         Map.Entry entry = platformsIterator.next()
-                        biomarkers = biomarkersForPlatform(entry.key, entry.value)
+                        biomarkers = biomarkersForPlatform(entry.key, entry.value, options)
                     }
                     return biomarkers
                 }}
@@ -158,8 +155,8 @@ class HighDimensionResourceService implements HighDimensionResource {
     }
 
     private def biomarkersForPlatform(HighDimensionDataTypeResourceImpl typeResource,
-                                      Collection<DeSubjectSampleMapping> assays) {
-        return assays ? typeResource.retrieveBioMarkersByAssays(assays) : null
+                                      Collection<DeSubjectSampleMapping> assays, Map options) {
+        return assays ? typeResource.retrieveBioMarkersByAssays(options, assays) : null
     }
 
     /**

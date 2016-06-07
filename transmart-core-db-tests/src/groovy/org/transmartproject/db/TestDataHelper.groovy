@@ -19,6 +19,9 @@
 
 package org.transmartproject.db
 
+import grails.util.Holders
+import org.hibernate.SessionFactory
+
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.everyItem
 import static org.hamcrest.Matchers.isA
@@ -81,4 +84,7 @@ class TestDataHelper {
         assertThat result, everyItem(isA(objects[0].getClass()))
     }
 
+    final static flushDb() {
+        Holders.grailsApplication.mainContext.getBean(SessionFactory).currentSession.flush()
+    }
 }

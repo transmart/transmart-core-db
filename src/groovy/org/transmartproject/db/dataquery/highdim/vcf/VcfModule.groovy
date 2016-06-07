@@ -38,10 +38,8 @@ import org.transmartproject.db.dataquery.highdim.correlations.SearchKeywordDataC
 import org.transmartproject.db.dataquery.highdim.parameterproducers.AllDataProjectionFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.DataRetrievalParameterFactory
 import org.transmartproject.db.dataquery.highdim.parameterproducers.MapBasedParameterFactory
-import org.transmartproject.db.util.ResultIteratorWrappingIterable
 
 import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-import static org.transmartproject.db.util.GormWorkarounds.executeQuery
 
 class VcfModule extends AbstractHighDimensionDataTypeModule {
 
@@ -218,9 +216,9 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
         )
     }
 
-    @Override /*@Nullable*/
-    IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
-        throw UnsupportedOperationException("Retrieving biomarkers by platform is not supported for VCF")
+    @Override
+    IterableResult<String> retrieveBioMarkers(Map options, Collection<String> platforms) {
+        throw new UnsupportedOperationException("Retrieving biomarkers by platform is not supported for VCF")
     }
 
     /**
@@ -229,12 +227,18 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
      * @param assays
      * @return
      */
-    @Override /*@Nullable*/
-    IterableResult<String> retrieveBioMarkersForAssays(Collection<Assay> assays) {
+    @Override
+    IterableResult<String> retrieveBioMarkersForAssays(Map options, Collection<Assay> assays) {
+        biomarkerService.checkOptions(options)
+        return biomarkerService.queryBioMarkers(options,
+                "select geneId from DeVariantSummaryDetailGene where assay in :assays",
+                [assays: assays])
+    }
 
-        String query = "select b.name from BioMarkerCoreDb b where b.externalId in (" +
-                "select geneId from DeVariantSummaryDetailGene where assay in :assays" +
-                ")"
+
+        //String query = "select b.name from BioMarkerCoreDb b where b.externalId in (" +
+        //        "select geneId from DeVariantSummaryDetailGene where assay in :assays" +
+        //        ")"
 
         /* alternative:
          * The above query uses a view, this query does the same join explicitly, but joining only the data that is
@@ -250,9 +254,7 @@ class VcfModule extends AbstractHighDimensionDataTypeModule {
         //            "and summary.assay in :assays" +
         //        ")"
 
-        ScrollableResults result = executeQuery(sessionFactory.openStatelessSession(), query, [assays: assays])
+        //ScrollableResults result = executeQuery(sessionFactory.openStatelessSession(), query, [assays: assays])
 
-        return new ResultIteratorWrappingIterable<String>(result)
-    }
-
+        //return new ResultIteratorWrappingIterable<String>(result)
 }

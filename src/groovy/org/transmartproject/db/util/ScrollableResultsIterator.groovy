@@ -27,7 +27,7 @@ class ScrollableResultsIterator<T> implements ResultIterator<T> {
     T next() {
         if (hasNext()) {
             hasNext = null
-            scrollableResults.get(0)
+            (T) scrollableResults.get(0)
         } else {
             throw new NoSuchElementException()
         }

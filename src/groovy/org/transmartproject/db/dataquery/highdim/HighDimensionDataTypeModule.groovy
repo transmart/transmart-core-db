@@ -116,7 +116,7 @@ public interface HighDimensionDataTypeModule {
      */
     List<String> getPlatformMarkerTypes()
 
-    IterableResult<String> retrieveBioMarkers(Collection<String> platforms)
+    IterableResult<String> retrieveBioMarkers(Map options, Collection<String> platforms)
 
-    IterableResult<String> retrieveBioMarkersForAssays(Collection<Assay> assays)
+    IterableResult<String> retrieveBioMarkersForAssays(Map options, Collection<Assay> assays)
 }

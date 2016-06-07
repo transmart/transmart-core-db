@@ -117,18 +117,20 @@ class HighDimensionDataTypeResourceImpl implements HighDimensionDataTypeResource
                 projection)
     }
 
-    @Override /*@Nullable*/
-    IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
-        return module.retrieveBioMarkers(platforms)
+    @Override
+    IterableResult<String> retrieveBioMarkers(Map options, Collection<String> platforms) {
+        return module.retrieveBioMarkers(options, platforms)
     }
+    @Override IterableResult<String> retrieveBioMarkers(Collection<String> platforms) {
+        this.retrieveBioMarkers(null, platforms) }
 
     /**
      * This method isn't exposed in core-api since I'm not sure we should. It is only used internally at the moment.
      * @param assays
      * @return
      */
-    IterableResult<String> retrieveBioMarkersByAssays(Collection<Assay> assays) {
-        return module.retrieveBioMarkersForAssays(assays)
+    IterableResult<String> retrieveBioMarkersByAssays(Map options, Collection<Assay> assays) {
+        return module.retrieveBioMarkersForAssays(options, assays)
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.google.common.collect.Sets
 import grails.test.mixin.TestMixin
 import groovy.sql.Sql
 import org.hibernate.Session
+import org.hibernate.SessionFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
@@ -70,7 +71,7 @@ class MrnaDataRetrievalTests {
 
     DataSource dataSource
 
-    HighDimensionDataTypeResource resource
+    HighDimensionDataTypeResourceImpl resource
 
     TabularResult dataQueryResult
 
@@ -91,6 +92,8 @@ class MrnaDataRetrievalTests {
         assertThat mrnaModule, is(notNullValue())
 
         resource = new HighDimensionDataTypeResourceImpl(mrnaModule)
+
+        sessionFactory.currentSession.flush()
     }
 
     @After
@@ -369,23 +372,12 @@ class MrnaDataRetrievalTests {
     @Test
     void testBioMarkers() {
 
-        assertThat( [1,2,3,4], containsInAnyOrder(1,2,3,4))
+        List<String> expectedBiomarkers = testData.bioMarkers[0..2]*.name
 
-        List expectedBiomarkers = testData.bioMarkers*.name
-
-        def manualGeneIds = Sets.newHashSet(testData.annotations.findAll {it.gplId == 'BOGUSGPL570'}
-                .collect {it.geneId.toString()})
-        def manualBiomarkers = testData.bioMarkers.findAll {it.externalId in manualGeneIds}
-        def manualBiomarkerNames = manualBiomarkers*.name
-
-        def biomarkers = resource.retrieveBioMarkers([testData.platform.id])
+        def biomarkers = resource.retrieveBioMarkers([testData.platform.id], related: false)
         def biomarkersList = Lists.newArrayList(biomarkers)
 
         assertThat( biomarkersList, containsInAnyOrder(*expectedBiomarkers))
-
-//        def resourceImpl = resource as HighDimensionDataTypeResourceImpl
-//        def constraint = resource.createAssayConstraint([concept_key: '\\Public Studies\\GSE8581\\Biomarker Data\\Affymetrix Human Genome U133 Plus 2.0 Array\\Lung\\'], AssayConstraint.ONTOLOGY_TERM_CONSTRAINT)
-//        resourceImpl.retrieveBioMarkers()
     }
 
     private runStatement(String statement) {
