@@ -36,6 +36,12 @@ class TwoRegionModule extends AbstractHighDimensionDataTypeModule {
 
     final Map<String, Class> rowProperties = ImmutableMap.of()
 
+    final Class dataClass = DeTwoRegionJunction
+    final Class annotationClass = DeTwoRegionJunctionEvent
+
+    // FIXME: implement this
+    @Override
+    String getBiomarkerField() { throw new UnsupportedOperationException("not implemented") }
 
     @Autowired
     DataRetrievalParameterFactory standardAssayConstraintFactory
