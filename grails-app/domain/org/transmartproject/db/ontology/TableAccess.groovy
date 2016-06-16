@@ -82,7 +82,7 @@ class TableAccess extends AbstractQuerySpecifyingType implements
         tableCode           maxSize:    50
         tableName           maxSize:    50
         cProtectedAccess    nullable:   true
-        fullName            maxSize:    700
+        fullName            maxSize:    700,    unique:    true
         name                maxSize:    2000
         cSynonymCd          nullable:   true
         cVisualattributes   maxSize:    3

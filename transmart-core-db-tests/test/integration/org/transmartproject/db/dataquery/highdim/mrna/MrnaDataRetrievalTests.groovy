@@ -374,7 +374,7 @@ class MrnaDataRetrievalTests {
 
         List<String> expectedBiomarkers = testData.bioMarkers[0..2]*.name
 
-        def biomarkers = resource.retrieveBioMarkers([testData.platform.id], related: false)
+        def biomarkers = resource.retrieveBioMarkers([testData.platform.id], searchKeywords: true, prefix: "BOGUS")
         def biomarkersList = Lists.newArrayList(biomarkers)
 
         assertThat( biomarkersList, containsInAnyOrder(*expectedBiomarkers))

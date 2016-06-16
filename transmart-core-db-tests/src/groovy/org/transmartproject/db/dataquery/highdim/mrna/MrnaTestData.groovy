@@ -123,11 +123,13 @@ class MrnaTestData {
     }()
 
     void saveAll(boolean skipBioMarkerData = false) {
+        TestDataHelper.flushDb()
+
         if (!skipBioMarkerData) {
             bioMarkerTestData.saveGeneData()
         }
 
-        AssayTestData.instance.saveAll()
+        assayTestData?.saveAll()
         assertThat platform.save(), is(notNullValue(DeGplInfo))
         save annotations
         save patients

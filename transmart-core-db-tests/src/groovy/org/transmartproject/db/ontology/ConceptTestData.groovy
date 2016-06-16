@@ -149,6 +149,20 @@ class ConceptTestData {
     }
 
     static TableAccess createTableAccess(Map properties) {
+        42
+        if (properties.id) {
+            def oldentry = TableAccess.get(properties.id)
+            oldentry?.delete(flush: true)
+            oldentry?.discard()
+        }
+        if (properties.fullName) {
+            def oldentry = TableAccess.find {
+                fullName == properties.fullName
+            }
+            oldentry?.delete(flush: true)
+            oldentry?.discard()
+        }
+
         def base = [
                 level                :   0,
                 factTableColumn      :   '',
