@@ -29,12 +29,8 @@ import org.hibernate.engine.SessionImplementor
 import org.transmartproject.core.dataquery.clinical.ClinicalVariable
 import org.transmartproject.core.exceptions.InvalidArgumentsException
 import org.transmartproject.db.dataquery.clinical.variables.TerminalConceptVariable
-import org.transmartproject.db.i2b2data.ConceptDimension
-import org.transmartproject.db.i2b2data.ObservationFact
 import org.transmartproject.db.i2b2data.PatientDimension
-
-import static org.transmartproject.db.util.GormWorkarounds.createCriteriaBuilder
-import static org.transmartproject.db.util.GormWorkarounds.getHibernateInCriterion
+import org.transmartproject.db.util.DatabaseMultisetStorage
 
 class TerminalConceptVariablesDataQuery {
 
@@ -56,29 +52,33 @@ class TerminalConceptVariablesDataQuery {
             throw new IllegalStateException('init() not called successfully yet')
         }
 
-        def criteriaBuilder = createCriteriaBuilder(ObservationFact, 'obs', session)
-        criteriaBuilder.with {
-            projections {
-                property 'patient.id'
-                property 'conceptCode'
-                property 'valueType'
-                property 'textValue'
-                property 'numberValue'
-            }
-            order 'patient.id'
-            order 'conceptCode'
-        }
+        def patientIds = patients.collect { it.id }
 
-        if (patients instanceof PatientQuery) {
-            criteriaBuilder.add(getHibernateInCriterion('patient.id',
-                    patients.forIds()))
-        } else {
-            criteriaBuilder.in('patient',  Lists.newArrayList(patients))
-        }
+        def dms = new DatabaseMultisetStorage(session)
+        def patientsBagId = dms.saveIntegerData(patientIds)
+        def intsTable = dms.getIntegerDataTableName()
+        def cvarsBagId = dms.saveStringData(clinicalVariables*.code)
+        def strsTable = dms.getStringDataTableName()
 
-        criteriaBuilder.in('conceptCode', clinicalVariables*.code)
+        def query = session.createSQLQuery """\
+            select patient_num as patient,
+                   concept_cd as conceptCode,
+                   valtype_cd as valueType,
+                   tval_char as textValue,
+                   nval_num as numberValue
+              from observation_fact
+             where     patient_num in (select /*+dynamic_sampling(10)*/ id from $intsTable where mid=:pid)
+                   and concept_cd in (select /*+dynamic_sampling(10)*/ id from $strsTable where mid=:cid)
+             order by patient, conceptCode
+        """.stripIndent()
 
-        criteriaBuilder.scroll ScrollMode.FORWARD_ONLY
+        query.setInteger('pid', patientsBagId)
+        query.setInteger('cid', cvarsBagId)
+        query.cacheable = false
+        query.readOnly  = true
+        query.fetchSize = 10000
+
+        query.scroll ScrollMode.FORWARD_ONLY
     }
 
     private void fillInTerminalConceptVariables() {
@@ -113,25 +113,29 @@ class TerminalConceptVariablesDataQuery {
         }
 
         // find the concepts
-        def res = ConceptDimension.withCriteria {
-            projections {
-                property 'conceptPath'
-                property 'conceptCode'
-            }
+        def dms = new DatabaseMultisetStorage(session)
+        def pathsBagId = dms.saveStringData(conceptPaths.keySet())
+        def codesBagId = dms.saveStringData(conceptCodes.keySet())
+        def strsTable = dms.getStringDataTableName()
 
-            or {
-                if (conceptPaths.keySet()) {
-                    'in' 'conceptPath', conceptPaths.keySet()
-                }
-                if (conceptCodes.keySet()) {
-                    'in' 'conceptCode', conceptCodes.keySet()
-                }
-            }
-        }
+        def stmt = session.connection().prepareStatement("""\
+            select concept_path,
+                   concept_cd
+              from concept_dimension
+             where concept_path in (select /*+dynamic_sampling(10)*/ id from $strsTable where mid=?)
+            union
+            select concept_path,
+                   concept_cd
+              from concept_dimension
+             where concept_cd in (select /*+dynamic_sampling(10)*/ id from $strsTable where mid=?)
+        """.stripIndent())
+        stmt.setInt(1, pathsBagId)
+        stmt.setInt(2, codesBagId)
 
-        for (concept in res) {
-            String conceptPath = concept[0],
-                   conceptCode = concept[1]
+        def res = stmt.executeQuery()
+        while (res.next()) {
+            String conceptPath = res.getString(1),
+                   conceptCode = res.getString(2)
 
             if (conceptPaths[conceptPath]) {
                 TerminalConceptVariable variable = conceptPaths[conceptPath]
