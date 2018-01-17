@@ -97,7 +97,7 @@ class ClinicalDataResourceService implements ClinicalDataResource {
             if (patientMap) {
                 intermediateResults = innerResultFactory.
                         createIntermediateResults(session,
-                                patients, flattenedVariables)
+                                patientMap.values(), flattenedVariables)
             } else {
                 log.info("No patients passed to retrieveData() with" +
                         "variables $variables; will skip main queries")
